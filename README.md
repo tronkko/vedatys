@@ -2,6 +2,8 @@
 
 Vedätys on korttipeli, missä huijaaminen on sallittua ja jopa välttämätöntä!
 
+![Kuvaruutkopio](https://tronkko.github.io/screenshot.png)
+
 
 ## Pelin kulku
 
@@ -65,7 +67,7 @@ on asennettu seuraavat ohjelmat:
 
 1. Lataa koodit githubista komennolla
 
-        git clone git@github.com:tronkko/vedatys.git
+        git clone https://github.com/tronkko/vedatys.git
 
 2. Mene cd:llä hakemistoon vedatys ja asenna NPM moduulit komennolla
 
