@@ -50,3 +50,33 @@ kakkosta.  Pelin arvokkain käsi on neljä ässää, jota ei voi lyödä.  Siksi
 joku väittää omaavansa neljä ässää, niin hänet tulee haastaa heti.
 
 
+# Asennusohjeet
+
+## Vaatimukset
+
+Pelin asentamiseksi tarvitset internettiin kytketyn Linux serverin, jolle
+on asennettu seuraavat ohjelmat:
+
+- Git https://git-scm.com/
+- Nodejs https://nodejs.org/en/
+
+
+## Asennus
+
+1. Lataa koodit githubista komennolla
+
+        git clone git@github.com:tronkko/vedatys.git
+
+2. Mene cd:llä hakemistoon vedatys ja asenna NPM moduulit komennolla
+
+        cd vedatys
+        npm install
+
+2. Käynnistä Nodejs serveri komennolla
+
+        node server.js
+
+3. Avaa nettiselain ja menee osoitteeseen omadomain:3000, missä omadomain
+on Linux serverisi verkkotunnus.
+
+
