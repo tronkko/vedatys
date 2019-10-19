@@ -1,0 +1,395 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<div id="app" v-cloak>
+    <app-main></app-main>
+</div>
+
+<template id="app-main-template">
+    <container v-bind:is="state.page"></container>
+</template>
+
+<template id="app-front-template">
+<div class="app-front">
+<app-menubar>
+</app-menubar>
+<app-center>
+    <h1>Vedätys</h1>
+    <p>
+        Korttipeli, jossa huijaaminen on sallittua ja jopa välttämätöntä!
+    </p>
+    <button type="button" @click="next()" class="btn btn-primary">
+        Aloita
+    </button>
+</app-center>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-lobby-template">
+<div class="app-lobby">
+<app-menubar>
+</app-menubar>
+<app-center>
+    <h1>Liity pelipöytään</h1>
+    <ul class="roomlist">
+        <li v-for="room in rooms" v-bind:key="room.id">
+            <a href="#" @click="enter(room)">
+                {{ room.name }} ({{ room.players }} pelaajaa)
+            </a>
+        </li>
+    </ul>
+    <button type="button" @click="refresh()" class="btn btn-secondary">
+        Päivitä
+    </button>
+</app-center>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-nick-template">
+<div class="app-nick">
+<app-menubar>
+</app-menubar>
+<app-center>
+    <h1>{{ state.room }}</h1>
+    <div v-if="state.players.length > 0">
+        <p>Tässä pöydässä pelaa:</p>
+        <table class="gamertable">
+        <tr v-for="player in state.players" v-bind:key="player.id">
+            <td>
+                <i class="fa fa-check fa-fw" v-if="player.status == 'ready'"></i>
+                <i class="fa fa-lock fa-fw" v-if="player.status == 'init'"></i>
+            </td>
+            <td>
+                {{ player.name }}
+            </td>
+        </tr>
+        </table>
+    </div>
+    <div v-if="state.players.length == 0">
+        <p>Odotetaan muita pelaajia...</p>
+    </div>
+    <div class="form-group" style="margin-top: 1rem;">
+        <label>Anna oma nimimerkkisi:</label>
+        <input type="text" class="form-control" v-model="nick">
+    </div>
+    <button type="button" @click="start()" class="btn btn-primary" :disabled="locked">
+        Liity
+    </button>
+    <button type="button" @click="leave()" class="btn btn-secondary" :disabled="locked">
+        Poistu
+    </button>
+</app-center>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-game-template">
+<div class="app-game">
+<app-menubar>
+</app-menubar>
+<app-center>
+    <h1>{{ state.room }}</h2>
+    <p>Pelaajat</p>
+    <table class="gamertable">
+    <tr>
+        <td>
+            <i class="fa fa-fw fa-check" v-if="state.status == 'ready'"></i>
+            <i class="fa fa-fw fa-lock" v-if="state.status == 'init'"></i>
+        </td>
+        <td>
+            {{ state.name }}
+        </td>
+    </tr>
+    <tr v-for="player in state.players" v-bind:key="player.id">
+        <td>
+            <i class="fa fa-fw fa-check" v-if="player.status == 'ready'"></i>
+            <i class="fa fa-fw fa-lock" v-if="player.status == 'init'"></i>
+        </td>
+        <td>
+            {{ player.name }}
+        </td>
+    </tr>
+    </table>
+    <p style="margin-top: 1rem;">Odota lisää pelaajia tai aloita peli heti</p>
+    <button type="button" @click="start()" class="btn btn-primary" :disabled="state.status != 'init'">
+        Aloita
+    </button>
+    <button type="button" @click="leave()" class="btn btn-secondary" :disabled="locked">
+        Poistu
+    </button>
+</app-center>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-picker-template">
+<div class="app-picker">
+<app-menubar>
+</app-menubar>
+<app-center>
+    <h1>Vaihda kortteja</h1>
+    <div>
+        <div class="cardrow">
+            <template v-for="card in state.cards">
+                <app-card :suit="card.suit"
+                    :value="card.value"
+                    @click="click($event)"
+                    selectable
+                    :selected="isSelected(card) ? '' : undefined"></app-card>
+            </template>
+        </div>
+    </div>
+    <div>
+        <button type="button" @click="cancel()" class="btn btn-secondary">
+            Peru
+        </button>
+        <button type="button" @click="submit()" class="btn btn-primary" :disabled="pick.length == 0">
+            Vaihda
+        </button>
+    </div>
+</app-center>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-selector-template">
+<div class="app-selector">
+<app-menubar>
+</app-menubar>
+<app-center>
+    <h1>Valitse kortit</h1>
+    <div>
+        <div class="cardrow mycards">
+            <template v-for="card in state.cards">
+                <app-card :suit="card.suit"
+                    :value="card.value"
+                    @click="click($event);"
+                    selectable
+                    :selected="isSelected(card) ? '' : undefined"></app-card>
+            </template>
+        </div>
+    </div>
+    <div>
+        <template v-for="suit in ['heart', 'diamond', 'club', 'spade']">
+            <div class="cardrow">
+                <template v-for="value in [2,3,4,5,6,7,8,9,10,11,12,13,14]">
+                    <app-card :suit="suit"
+                        :value="value"
+                        @click="click($event);"
+                        selectable
+                        :selected="isSelected({ suit, value }) ? '' : undefined"
+                        :disabled="isDisabled({ suit, value }) ? '' : undefined"></app-card>
+                </template>
+            </div>
+        </template>
+    </div>
+    <div>
+        <button type="button" @click="cancel()" class="btn btn-secondary">
+            Peru
+        </button>
+        <button type="button" @click="submit()" class="btn btn-primary">
+            Vedätä
+        </button>
+    </div>
+</app-center>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-board-template">
+<div class="app-board">
+<app-menubar>
+</app-menubar>
+<app-grid>
+    <template v-slot:top>
+        Risto
+    </template>
+
+    <template v-slot:left>
+        Jaana
+    </template>
+
+    <template v-slot:center>
+        <template v-if="message">
+            {{ message }}
+        </template>
+        <template v-if="state.status == 'init'">
+            <p>Taneli väittää pitävänsä kädessään:</p>
+            <p><strong>Kasihai</strong></p>
+            <button type="button" @click="challenge()" class="btn btn-danger">
+                Haasta
+            </button>
+            <button type="button" @click="accept()" class="btn btn-primary">
+                Jatka
+            </button>
+        </template>
+        <template v-if="state.status == 'swap'">
+            <p>Haluatko vaihtaa kortteja?<p>
+            <button type="button" @click="swap()" class="btn btn-primary">
+                Vaihda
+            </button>
+            <button type="button" @click="noswap()" class="btn btn-secondary">
+                Ohita
+            </button>
+        </template>
+        <template v-if="state.status == 'raise'">
+            <p>Pöydässä on:</p>
+            <p><strong>Kasihai</strong></p>
+            <p>Valitse omista korteistasi parempi käsi tai vedätä</p>
+            <button type="button" @click="truth()" class="btn btn-primary">
+                Valitse
+            </button>
+            <button type="button" @click="lie()" class="btn btn-danger">
+                Vedätä
+            </button>
+        </template>
+        <template v-if="state.status == 'demo'">
+            <p>Jaanan vuoro</p>
+        </template>
+    </template>
+
+    <template v-slot:right>
+        Taneli
+    </template>
+
+    <template v-slot:bottom>
+        <div>
+            Toni
+        </div>
+        <div class="cardrow mycards">
+            <template v-for="card in state.cards">
+                <app-card :suit="card.suit"
+                    :value="card.value"
+                    @click="click($event)"
+                    selectable
+                    :selected="isSelected(card) ? '' : undefined"></app-card>
+            </template>
+        </div>
+    </template>
+</app-grid>
+<app-statusbar>
+</app-statusbar>
+</div>
+</template>
+
+<template id="app-card-template">
+<div @click="click()" class="app-card" :class="{ selected: isSelected, disabled: isDisabled }">
+    <img :src="source" :alt="alt" :title="alt" />
+</div>
+</template>
+
+<template id="app-menubar-template">
+<div class="app-menubar">
+    <nav class="navbar navbar-dark bg-dark">
+        <div>
+            <a class="navbar-brand" href="#">Vedätys</a>
+            <slot name="left"></slot>
+        </div>
+        <div>
+            <slot name="middle"></slot>
+        </div>
+        <div>
+            <slot name="right"></slot>
+        </div>
+    </nav>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <slot name="menu"></slot>
+    </div>
+</div>
+</template>
+
+<template id="app-statusbar-template">
+<div class="app-statusbar">
+    <nav class="navbar navbar-dark bg-dark">
+        <div>
+            {{ state.message }}
+        </div>
+        <div></div>
+        <div class="logos">
+            <img src="img/gyostage.png">
+            Game Jame 2019
+        </div>
+    </nav>
+</div>
+</template>
+
+<template id="app-center-template">
+<div class="app-center">
+    <table>
+    <tr>
+        <td class="app-center-content">
+            <slot></slot>
+        </td>
+    </tr>
+    </table>
+</div>
+</template>
+
+<template id="app-grid-template">
+<div class="app-grid">
+    <table>
+    <tr class="toprow">
+        <td colspan="3" class="top">
+            <slot name="top">top</slot>
+        </td>
+    </tr>
+    <tr class="centerrow">
+        <td class="left">
+            <slot name="left">left</slot>
+        </td>
+        <td class="center">
+            <slot name="center"></slot>
+        </td>
+        <td class="right">
+            <slot name="right">right</slot>
+        </td>
+    </tr>
+    <tr class="bottomrow">
+        <td colspan="3" class="bottom">
+            <slot name="bottom">bottom</slot>
+        </td>
+    </tr>
+    </table>
+</div>
+</template>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/popper.js"></script>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/bootstrap.js"></script>
+<script src="store.js"></script>
+<script src="util.js"></script>
+<script src="components/main.js"></script>
+<script src="components/center.js"></script>
+<script src="components/grid.js"></script>
+<script src="components/card.js"></script>
+<script src="components/menubar.js"></script>
+<script src="components/statusbar.js"></script>
+<script src="views/front.js"></script>
+<script src="views/lobby.js"></script>
+<script src="views/nick.js"></script>
+<script src="views/game.js"></script>
+<script src="views/board.js"></script>
+<script src="views/selector.js"></script>
+<script src="views/picker.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+

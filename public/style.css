@@ -1,0 +1,208 @@
+/* Remove border */
+html,
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    overflow: hidden;
+    background: #060;
+    color: white;
+}
+
+/* Hide elements while vuejs is loading */
+[v-cloak] {
+    display: none;
+}
+
+/* Menubar component */
+div.app-menubar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    color: black;
+    z-index: 10;
+}
+div.app-menubar .navbar {
+    height: 60px;
+}
+
+/* Statusbar component */
+div.app-statusbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    color: black;
+    z-index: 10;
+}
+div.app-statusbar .navbar {
+    height: 60px;
+    color: white;
+}
+div.app-statusbar .logos {
+    text-align: right;
+}
+div.app-statusbar .logos img {
+    max-width: 150px;
+    height: auto;
+}
+
+
+/* Center component */
+div.app-center {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+div.app-center > table {
+    height: 100%;
+    margin: 0 auto;
+}
+div.app-center td.app-center-content {
+    padding: 60px 20px;
+}
+.app-center-content {
+    padding: 20px;
+    text-align: center;
+}
+
+/* Grid component */
+div.app-grid {
+    padding: 60px 20px;
+    width: 100%;
+    height: 100%;
+}
+div.app-grid > table {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+}
+div.app-grid .toprow {
+    vertical-align: bottom;
+    height: 60px;
+}
+div.app-grid .centerrow {
+    vertical-align: middle;
+}
+div.app-grid .bottomrow {
+    vertical-align: bottom;
+    height: 60px;
+}
+div.app-grid .top {
+    text-align: center;
+}
+div.app-grid .left {
+    width: 20%;
+    text-align: center;
+}
+div.app-grid .center {
+    width: 60%;
+    text-align: center;
+}
+div.app-grid .right {
+    width: 20%;
+    text-align: center;
+}
+div.app-grid .bottom {
+    text-align: center;
+}
+
+/* Lobby view */
+.roomlist {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+.gamertable {
+    margin: 1rem;
+}
+.gamertable td {
+    padding-right: 1rem;
+}
+
+/* Card component */
+.app-card {
+    margin: 6px 4px;
+    padding: 0;
+    display: inline-block;
+    max-width: 92px;
+    position: relative;
+}
+.app-card.selected {
+    transform: translate(0, -6px) rotate(5deg);
+    filter: drop-shadow(6px 6px 4px rgba(0,0,0,0.9));
+}
+.app-card img {
+    width: 92px;
+    height: 137px;
+}
+
+/* Board/selector view */
+.cardrow {
+    margin-left: 0;
+    line-height: 0;
+    font-size: 0;
+}
+.cardrow:last-child {
+    margin-bottom: 0.5rem;
+}
+.cardrow.mycards {
+    margin-left: 0;
+}
+.cardrow .app-card {
+    width: 6vw;
+    height: 40px;
+    display: inline-block;
+    position: relative;
+    margin: 0;
+}
+.cardrow.mycards .app-card,
+.cardrow.mycards:last-child .app-card {
+    height: 60px;
+}
+.cardrow:last-child .app-card {
+    height: 137px;
+}
+.cardrow.mycards .app-card:last-child {
+    width: 97px;
+}
+.cardrow .app-card.disabled {
+    visibility: hidden;
+}
+.cardrow .app-card img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 92px;
+    height: 137px;
+    margin: 0;
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .cardrow {
+        margin-left: 9vw;
+    }
+    .cardrow + .cardrow {
+        margin-left: 6vw;
+    }
+    .cardrow + .cardrow + .cardrow {
+        margin-left: 3vw;
+    }
+    .cardrow + .cardrow + .cardrow + .cardrow {
+        margin-left: 0;
+    }
+    .cardrow:last-child {
+        margin-left: 0;
+    }
+    .cardrow .app-card:last-child {
+        width: 97px;
+    }
+}
+
+
+
